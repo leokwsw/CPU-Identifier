@@ -131,6 +131,13 @@
 			children = (
 				23F764AF1E38476000F408F6 /* CPUIdentifierAppDelegate.h */,
 				23F764B01E38476000F408F6 /* CPUIdentifierAppDelegate.m */,
+				23F764C11E3847CE00F408F6 /* MainMenu.xib */,
+				23F764B21E38476900F408F6 /* NSString+MD5Addition.h */,
+				23F764B31E38476900F408F6 /* NSString+MD5Addition.m */,
+				23F764CE1E3863B400F408F6 /* Assets.xcassets */,
+				23F764C41E3847DB00F408F6 /* InfoPlist.strings */,
+				23F764B71E38479200F408F6 /* Icon.icns */,
+				23F764D21E38647200F408F6 /* Info.plist */,
 				29B97315FDCFA39411CA2CEA /* Supporting Files */,
 			);
 			name = "CPU Identifier Mac";
@@ -194,16 +201,9 @@
 		29B97315FDCFA39411CA2CEA /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				29B97323FDCFA39411CA2CEA /* Frameworks */,
-				23F764C11E3847CE00F408F6 /* MainMenu.xib */,
-				23F764B21E38476900F408F6 /* NSString+MD5Addition.h */,
-				23F764B31E38476900F408F6 /* NSString+MD5Addition.m */,
-				23F764CE1E3863B400F408F6 /* Assets.xcassets */,
-				23F764C41E3847DB00F408F6 /* InfoPlist.strings */,
-				23F764B71E38479200F408F6 /* Icon.icns */,
 				23F764B91E38479900F408F6 /* CPU Identifier_Prefix.pch */,
 				23F764BA1E38479E00F408F6 /* main.m */,
-				23F764D21E38647200F408F6 /* Info.plist */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -268,8 +268,11 @@
 				TargetAttributes = {
 					23F764971E3846D000F408F6 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = F485E6Z4GW;
+						DevelopmentTeam = M7M8Q5Z59L;
 						ProvisioningStyle = Automatic;
+					};
+					8D1107260486CEB800E47090 = {
+						DevelopmentTeam = M7M8Q5Z59L;
 					};
 				};
 			};
@@ -421,7 +424,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = F485E6Z4GW;
+				DEVELOPMENT_TEAM = M7M8Q5Z59L;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -456,7 +459,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = F485E6Z4GW;
+				DEVELOPMENT_TEAM = M7M8Q5Z59L;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -478,6 +481,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = M7M8Q5Z59L;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/CPU\\ Identifier\\ Mac";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
@@ -490,7 +494,7 @@
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/system",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.leonardpark.cpuidentifier-Mac";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.leonardpark.cpuidentifier-mac";
 				PRODUCT_NAME = "CPU Identifier";
 			};
 			name = Debug;
@@ -501,6 +505,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = M7M8Q5Z59L;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/CPU\\ Identifier\\ Mac";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -511,7 +516,7 @@
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/system",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.leonardpark.cpuidentifier-Mac";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.leonardpark.cpuidentifier-mac";
 				PRODUCT_NAME = "CPU Identifier";
 			};
 			name = Release;

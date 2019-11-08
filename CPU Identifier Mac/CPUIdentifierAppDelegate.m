@@ -58,7 +58,7 @@ void recovery_disconnect_callback(struct am_recovery_device *rdev){[classPointer
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	classPointer = self;
     
-    self.window.backgroundColor = [NSColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0];
+//    self.window.backgroundColor = [NSColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0];
     
 	AMDeviceNotificationSubscribe(notification_callback, 0, 0, 0, &notification);
 	AMRestoreRegisterForDeviceNotifications(recovery_disconnect_callback, recovery_connect_callback, recovery_disconnect_callback, recovery_disconnect_callback, 0, NULL);
@@ -95,21 +95,21 @@ void recovery_disconnect_callback(struct am_recovery_device *rdev){[classPointer
     NSArray* key=[[NSArray alloc]initWithObjects:
                   @"DieID",
                   @"RegionInfo",
-                  @"UniqueChipID",
+                  @"UniqueChipID", // ECID
                   @"DeviceClass",
-                  @"DeviceColor",
-                  @"CPUArchitecture",
-                  @"PhoneNumber",
-                  @"BluetoothAddress",
+//                  @"DeviceColor",
+//                  @"CPUArchitecture",
+//                  @"PhoneNumber",
+//                  @"BluetoothAddress",
                   @"DeviceName",
-                  @"BuildVersion",
-                  @"ProductVersion",
-                  @"WiFiAddress",
-                  @"UniqueDeviceID",
-                  @"SerialNumber",
-                  @"HardwarePlatform",
+//                  @"BuildVersion",
+//                  @"ProductVersion",
+//                  @"WiFiAddress",
+                  @"UniqueDeviceID", // UDID
+//                  @"SerialNumber",
+//                  @"HardwarePlatform",
                   @"ModelNumber",
-                  @"ProductType",
+//                  @"ProductType",
                   @"RegionCode",
                   nil];
     for(int i=0;i<key.count;i++){

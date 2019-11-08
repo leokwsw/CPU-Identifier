@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="15505" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15505"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -42,41 +42,37 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" texturedBackground="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="447" y="320" width="395" height="101"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="372">
                 <rect key="frame" x="0.0" y="0.0" width="395" height="101"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="559">
+                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="559">
                         <rect key="frame" x="18" y="45" width="359" height="17"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" placeholderString="No Device Connected" id="560">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="m0h-nj-QcN">
-                        <rect key="frame" x="18" y="70" width="359" height="24"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m0h-nj-QcN">
+                        <rect key="frame" x="18" y="70" width="359" height="23"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" id="SGL-ch-bA0">
                             <font key="font" metaFont="system" size="20"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="WiM-SY-Yt1">
-                        <rect key="frame" x="18" y="45" width="359" height="24"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WiM-SY-Yt1">
+                        <rect key="frame" x="18" y="45" width="359" height="23"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" id="lAX-FC-6p2">
                             <font key="font" metaFont="system" size="20"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="aXy-LR-5Ta">
-                        <rect key="frame" x="18" y="20" width="359" height="17"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aXy-LR-5Ta">
+                        <rect key="frame" x="18" y="21" width="359" height="16"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" id="cnt-lI-ORW">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -84,6 +80,21 @@
                         </textFieldCell>
                     </textField>
                 </subviews>
+                <constraints>
+                    <constraint firstItem="559" firstAttribute="top" secondItem="m0h-nj-QcN" secondAttribute="bottom" constant="8" symbolic="YES" id="D0l-Im-gLn"/>
+                    <constraint firstItem="559" firstAttribute="leading" secondItem="372" secondAttribute="leading" constant="20" symbolic="YES" id="IIJ-VU-qYU"/>
+                    <constraint firstItem="aXy-LR-5Ta" firstAttribute="top" secondItem="559" secondAttribute="bottom" constant="8" symbolic="YES" id="McM-mA-7Ii"/>
+                    <constraint firstItem="559" firstAttribute="leading" secondItem="WiM-SY-Yt1" secondAttribute="leading" id="R4X-aX-McZ"/>
+                    <constraint firstAttribute="trailing" secondItem="559" secondAttribute="trailing" constant="20" symbolic="YES" id="RYV-eP-8uH"/>
+                    <constraint firstItem="559" firstAttribute="trailing" secondItem="m0h-nj-QcN" secondAttribute="trailing" id="WSZ-wm-E3D"/>
+                    <constraint firstItem="559" firstAttribute="trailing" secondItem="aXy-LR-5Ta" secondAttribute="trailing" id="ayf-7g-00P"/>
+                    <constraint firstItem="559" firstAttribute="leading" secondItem="aXy-LR-5Ta" secondAttribute="leading" id="fCt-sO-ogK"/>
+                    <constraint firstItem="559" firstAttribute="leading" secondItem="m0h-nj-QcN" secondAttribute="leading" id="fp4-g5-A2u"/>
+                    <constraint firstItem="559" firstAttribute="firstBaseline" secondItem="WiM-SY-Yt1" secondAttribute="baseline" id="hfh-9p-LT1"/>
+                    <constraint firstItem="559" firstAttribute="trailing" secondItem="WiM-SY-Yt1" secondAttribute="trailing" id="i8B-kD-s9a"/>
+                    <constraint firstItem="559" firstAttribute="bottom" secondItem="WiM-SY-Yt1" secondAttribute="bottom" id="q5J-mX-DbJ"/>
+                    <constraint firstItem="559" firstAttribute="top" secondItem="372" secondAttribute="top" constant="39" id="sqZ-e1-2eC"/>
+                </constraints>
             </view>
             <point key="canvasLocation" x="403.5" y="260.5"/>
         </window>
