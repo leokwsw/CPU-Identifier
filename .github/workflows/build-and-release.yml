@@ -7,14 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number for the release (e.g., 1.0.0)'
+        description: 'Version number for the release (e.g., 2.0.0)'
         required: true
-        default: '1.0.0'
+        default: '2.0.0'
 
 jobs:
   build:
-    # Use macos-latest and cross-compile for x86_64
-    # MobileDevice.framework only supports x86_64, app runs via Rosetta 2 on Apple Silicon
+    # Build Universal Binary (ARM64 + x86_64) for Swift 2.0 with libimobiledevice
     runs-on: macos-latest
     
     steps:
@@ -32,23 +31,21 @@ jobs:
       - name: List available schemes
         run: xcodebuild -list -project "CPU Identifier.xcodeproj"
 
-      - name: Build Mac App (x86_64)
+      - name: Build Mac App (Universal Binary)
         run: |
-          # Cross-compile for x86_64 since MobileDevice.framework doesn't support arm64
+          # Build Universal Binary (ARM64 + x86_64) for macOS
+          # Swift 2.0 uses libimobiledevice which supports both architectures
           xcodebuild \
             -project "CPU Identifier.xcodeproj" \
             -scheme "CPU Identifier Mac" \
             -configuration Release \
             -derivedDataPath build \
-            -arch x86_64 \
-            ARCHS=x86_64 \
-            VALID_ARCHS=x86_64 \
+            ARCHS="arm64 x86_64" \
             ONLY_ACTIVE_ARCH=NO \
-            MACOSX_DEPLOYMENT_TARGET=10.13 \
+            MACOSX_DEPLOYMENT_TARGET=11.0 \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            SKIP_OBJCLEAN=1 \
             build
 
       - name: Find built app
@@ -100,7 +97,11 @@ jobs:
           body: |
             ## CPU Identifier ${{ env.VERSION }}
             
-            ### What's New
+            ### What's New in 2.0
+            - 🚀 **Rewritten in Swift** - Modern, maintainable codebase
+            - 🍎 **Native Apple Silicon support** - Universal Binary (ARM64 + x86_64)
+            - 🔧 **libimobiledevice integration** - No more Rosetta 2 dependency
+            - ✅ **macOS 28+ compatible** - Future-proof for when Rosetta 2 is discontinued
             - Support for the latest Apple devices
             - Updated CPU/chip identifiers
             
@@ -112,12 +113,16 @@ jobs:
             - Apple TV 4K (3rd generation)
             - Apple Vision Pro
             
-            ### Installation
-            1. Download the DMG file
-            2. Open the DMG
-            3. Drag "CPU Identifier" to your Applications folder
+            ### System Requirements
+            - **macOS**: 11.0 (Big Sur) or later
+            - **Architecture**: Universal Binary (ARM64 + x86_64)
+            - **Dependency**: libimobiledevice (install via `brew install libimobiledevice`)
             
-            **Note:** This app requires macOS 10.13 or later. Built for Intel (x86_64) and runs on Apple Silicon via Rosetta 2.
+            ### Installation
+            1. Install libimobiledevice: `brew install libimobiledevice`
+            2. Download the DMG file
+            3. Open the DMG
+            4. Drag "CPU Identifier" to your Applications folder
           files: ${{ env.DMG_NAME }}
           draft: false
           prerelease: false
