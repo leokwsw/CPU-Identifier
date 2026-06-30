@@ -391,7 +391,7 @@ public let deviceIdentifiers: [String: String] = [
 
 /// Get chip name from hardware platform code
 public func getChipName(from platformCode: String) -> String {
-    return chipIdentifiers[platformCode] ?? "Unknown CPU"
+    return chipIdentifiers[platformCode.lowercased()] ?? "Unknown CPU"
 }
 
 /// Get device name from product type code

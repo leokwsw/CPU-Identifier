@@ -10,6 +10,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        
+        #if !targetEnvironment(simulator)
+        setupUI()
+        #endif
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -18,7 +22,6 @@ class ViewController: UIViewController {
         #if targetEnvironment(simulator)
         showSimulatorAlert()
         #else
-        setupUI()
         displayChipInfo()
         #endif
     }
@@ -133,11 +136,13 @@ class ViewController: UIViewController {
         
         let mgCopyAnswer = unsafeBitCast(symbol, to: MGCopyAnswerType.self)
         
-        if let result = mgCopyAnswer("HardwarePlatform" as CFString) {
-            return result as? String
+        let result = mgCopyAnswer("HardwarePlatform" as CFString)
+        dlclose(gestalt)
+        
+        if let platformString = result as? String {
+            return platformString
         }
         
-        dlclose(gestalt)
         return nil
     }
     
