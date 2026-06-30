@@ -187,14 +187,18 @@ jobs:
             }
 
       - name: Summary
+        env:
+          DEVICE_REPORT: ${{ steps.fetch_names.outputs.DEVICE_REPORT }}
+          HAS_UPDATES: ${{ steps.check_new.outputs.HAS_UPDATES }}
+          MISSING_COUNT: ${{ steps.check_new.outputs.MISSING_COUNT }}
         run: |
           echo "## Device Update Check Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.check_new.outputs.HAS_UPDATES }}" == "true" ]; then
-            echo "✅ Found **${{ steps.check_new.outputs.MISSING_COUNT }}** new device(s)" >> $GITHUB_STEP_SUMMARY
+          if [ "$HAS_UPDATES" == "true" ]; then
+            echo "✅ Found **$MISSING_COUNT** new device(s)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### New Devices" >> $GITHUB_STEP_SUMMARY
-            echo "${{ steps.fetch_names.outputs.DEVICE_REPORT }}" >> $GITHUB_STEP_SUMMARY
+            echo "$DEVICE_REPORT" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ No new devices found. All device identifiers are up to date!" >> $GITHUB_STEP_SUMMARY
           fi
