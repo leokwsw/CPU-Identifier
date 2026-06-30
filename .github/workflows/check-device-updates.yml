@@ -6,6 +6,10 @@ on:
     - cron: '0 0 1 * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   check-updates:
     runs-on: ubuntu-latest
@@ -17,17 +21,27 @@ jobs:
       - name: Fetch latest device identifiers
         id: fetch_devices
         run: |
+          set -e
+          
           # Fetch the latest iOS device identifiers
-          curl -s "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/ios-device-identifiers.json" > /tmp/ios-devices.json
+          curl -sf "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/ios-device-identifiers.json" > /tmp/ios-devices.json
           
           # Fetch the latest Mac device identifiers
-          curl -s "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/mac-device-identifiers.json" > /tmp/mac-devices.json
+          curl -sf "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/mac-device-identifiers.json" > /tmp/mac-devices.json
           
           # Fetch the latest watchOS device identifiers
-          curl -s "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/watchos-device-identifiers.json" > /tmp/watchos-devices.json
+          curl -sf "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/watchos-device-identifiers.json" > /tmp/watchos-devices.json
           
           # Fetch the latest tvOS device identifiers
-          curl -s "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/tvos-device-identifiers.json" > /tmp/tvos-devices.json
+          curl -sf "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/tvos-device-identifiers.json" > /tmp/tvos-devices.json
+          
+          # Validate that all files contain valid JSON
+          for f in /tmp/ios-devices.json /tmp/mac-devices.json /tmp/watchos-devices.json /tmp/tvos-devices.json; do
+            if ! jq empty "$f" 2>/dev/null; then
+              echo "Error: $f is not valid JSON"
+              exit 1
+            fi
+          done
           
           echo "Fetched latest device identifiers"
 
@@ -35,7 +49,7 @@ jobs:
         id: check_new
         run: |
           # Extract device identifiers from current code
-          CURRENT_DEVICES=$(grep -oE '(iPhone|iPad|iPod|Watch|AppleTV|Mac|MacBook|Macmini|iMac|RealityDevice)[0-9]+,[0-9]+' "CPU Identifier Mac/CPUIdentifierAppDelegate.m" | sort -u)
+          CURRENT_DEVICES=$(grep -oE '(iPhone|iPad|iPod|Watch|AppleTV|Mac|MacBook|Macmini|iMac|RealityDevice)[0-9A-Za-z]+,[0-9]+' "CPU Identifier Mac/CPUIdentifierAppDelegate.m" | sort -u)
           
           # Extract device identifiers from fetched JSON files
           NEW_IOS_DEVICES=$(cat /tmp/ios-devices.json | grep -oE '"(iPhone|iPad|iPod)[0-9]+,[0-9]+"' | tr -d '"' | sort -u)
@@ -110,11 +124,14 @@ jobs:
       - name: Create or update issue
         if: steps.check_new.outputs.HAS_UPDATES == 'true'
         uses: actions/github-script@v7
+        env:
+          DEVICE_REPORT: ${{ steps.fetch_names.outputs.DEVICE_REPORT }}
+          MISSING_COUNT: ${{ steps.check_new.outputs.MISSING_COUNT }}
         with:
           script: |
             const title = '🔔 New Apple Devices Detected';
-            const missingCount = '${{ steps.check_new.outputs.MISSING_COUNT }}';
-            const deviceReport = `${{ steps.fetch_names.outputs.DEVICE_REPORT }}`;
+            const missingCount = process.env.MISSING_COUNT;
+            const deviceReport = process.env.DEVICE_REPORT;
             
             const body = `## New Device Identifiers Found
             
