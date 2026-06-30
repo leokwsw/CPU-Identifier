@@ -87,24 +87,114 @@ static CFStringRef (*$MGCopyAnswer)(CFStringRef);
     }
     
     NSString* str2Cmp = [(__bridge NSString *)boardID lowercaseString];
-    if ([str2Cmp hasPrefix:@"s5l8960"] || [str2Cmp hasPrefix:@"s5l8965"]){
+    // A-series chips
+    if ([str2Cmp hasPrefix:@"s5l8930"]){
+        imageName = @"A4";
+    }else if ([str2Cmp hasPrefix:@"s5l8940"] || [str2Cmp hasPrefix:@"s5l8942"] ){
+        imageName = @"A5";
+    }else if ([str2Cmp hasPrefix:@"s5l8945"]){
+        imageName = @"A5X";
+    }else if ([str2Cmp hasPrefix:@"s5l8950"]){
+        imageName = @"A6";
+    }else if ([str2Cmp hasPrefix:@"s5l8955"]){
+        imageName = @"A6X";
+    }else if ([str2Cmp hasPrefix:@"s5l8960"] || [str2Cmp hasPrefix:@"s5l8965"]){
         imageName = @"A7";
     }else if ([str2Cmp hasPrefix:@"t7000"]){
         imageName = @"A8";
     }else if ([str2Cmp hasPrefix:@"t7001"]){
         imageName = @"A8X";
-    }else if ([str2Cmp hasPrefix:@"s5l8950"]){
-        imageName = @"A6";
-    }else if ([str2Cmp hasPrefix:@"s5L8955"]){
-        imageName = @"A6X";
-    }else if ([str2Cmp hasPrefix:@"s5l8940"] || [str2Cmp hasPrefix:@"s5l8942"] ){
-        imageName = @"A5";
-    }else if ([str2Cmp hasPrefix:@"s5l8945"]){
-        imageName = @"A5X";
-    }else if ([str2Cmp hasPrefix:@"s5l8930"]){
-        imageName = @"A4";
-    }else if ([str2Cmp hasPrefix:@""]){
-        
+    }else if ([str2Cmp hasPrefix:@"t8010"]){
+        imageName = @"A10";
+        boardIDLabel.text = @"A10 Fusion";
+    }else if ([str2Cmp hasPrefix:@"t8011"]){
+        imageName = @"A10X";
+        boardIDLabel.text = @"A10X Fusion";
+    }else if ([str2Cmp hasPrefix:@"t8015"]){
+        imageName = @"A11";
+        boardIDLabel.text = @"A11 Bionic";
+    }else if ([str2Cmp hasPrefix:@"t8020"]){
+        imageName = @"A12";
+        boardIDLabel.text = @"A12 Bionic";
+    }else if ([str2Cmp hasPrefix:@"t8027"]){
+        imageName = @"A12X";
+        boardIDLabel.text = @"A12X Bionic";
+    }else if ([str2Cmp hasPrefix:@"t8030"]){
+        imageName = @"A13";
+        boardIDLabel.text = @"A13 Bionic";
+    }else if ([str2Cmp hasPrefix:@"t8101"]){
+        imageName = @"A14";
+        boardIDLabel.text = @"A14 Bionic";
+    }else if ([str2Cmp hasPrefix:@"t8110"]){
+        imageName = @"A15";
+        boardIDLabel.text = @"A15 Bionic";
+    }else if ([str2Cmp hasPrefix:@"t8120"]){
+        imageName = @"A16";
+        boardIDLabel.text = @"A16 Bionic";
+    }else if ([str2Cmp hasPrefix:@"t8130"]){
+        imageName = @"A17";
+        boardIDLabel.text = @"A17 Pro";
+    }else if ([str2Cmp hasPrefix:@"t8140a"]){
+        imageName = @"A18";
+        boardIDLabel.text = @"A18";
+    }else if ([str2Cmp hasPrefix:@"t8140"]){
+        imageName = @"A18";
+        boardIDLabel.text = @"A18 Pro";
+    }else if ([str2Cmp hasPrefix:@"t8150"]){
+        imageName = @"A19";
+        boardIDLabel.text = @"A19 Pro";
+    // M-series chips
+    }else if ([str2Cmp hasPrefix:@"t8103"]){
+        imageName = @"M1";
+        boardIDLabel.text = @"M1";
+    }else if ([str2Cmp hasPrefix:@"t6000"]){
+        imageName = @"M1";
+        boardIDLabel.text = @"M1 Pro";
+    }else if ([str2Cmp hasPrefix:@"t6001"]){
+        imageName = @"M1";
+        boardIDLabel.text = @"M1 Max";
+    }else if ([str2Cmp hasPrefix:@"t6002"]){
+        imageName = @"M1";
+        boardIDLabel.text = @"M1 Ultra";
+    }else if ([str2Cmp hasPrefix:@"t8112"]){
+        imageName = @"M2";
+        boardIDLabel.text = @"M2";
+    }else if ([str2Cmp hasPrefix:@"t6020"]){
+        imageName = @"M2";
+        boardIDLabel.text = @"M2 Pro";
+    }else if ([str2Cmp hasPrefix:@"t6021"]){
+        imageName = @"M2";
+        boardIDLabel.text = @"M2 Max";
+    }else if ([str2Cmp hasPrefix:@"t6022"]){
+        imageName = @"M2";
+        boardIDLabel.text = @"M2 Ultra";
+    }else if ([str2Cmp hasPrefix:@"t8122"]){
+        imageName = @"M3";
+        boardIDLabel.text = @"M3";
+    }else if ([str2Cmp hasPrefix:@"t6030"]){
+        imageName = @"M3";
+        boardIDLabel.text = @"M3 Pro";
+    }else if ([str2Cmp hasPrefix:@"t6031"] || [str2Cmp hasPrefix:@"t6034"]){
+        imageName = @"M3";
+        boardIDLabel.text = @"M3 Max";
+    }else if ([str2Cmp hasPrefix:@"t6032"]){
+        imageName = @"M3";
+        boardIDLabel.text = @"M3 Ultra";
+    }else if ([str2Cmp hasPrefix:@"t8132"]){
+        imageName = @"M4";
+        boardIDLabel.text = @"M4";
+    }else if ([str2Cmp hasPrefix:@"t6040"]){
+        imageName = @"M4";
+        boardIDLabel.text = @"M4 Pro";
+    }else if ([str2Cmp hasPrefix:@"t6041"]){
+        imageName = @"M4";
+        boardIDLabel.text = @"M4 Max";
+    }else if ([str2Cmp hasPrefix:@"t8142"]){
+        imageName = @"M5";
+        boardIDLabel.text = @"M5";
+    }else if ([str2Cmp hasPrefix:@"t6050"]){
+        imageName = @"M5";
+        boardIDLabel.text = @"M5 Pro";
     }
     //
     //
