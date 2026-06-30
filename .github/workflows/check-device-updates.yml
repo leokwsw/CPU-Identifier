@@ -1,0 +1,183 @@
+name: Check for Device Updates
+
+on:
+  schedule:
+    # Run on the 1st of every month at 00:00 UTC
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch latest device identifiers
+        id: fetch_devices
+        run: |
+          # Fetch the latest iOS device identifiers
+          curl -s "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/ios-device-identifiers.json" > /tmp/ios-devices.json
+          
+          # Fetch the latest Mac device identifiers
+          curl -s "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/mac-device-identifiers.json" > /tmp/mac-devices.json
+          
+          # Fetch the latest watchOS device identifiers
+          curl -s "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/watchos-device-identifiers.json" > /tmp/watchos-devices.json
+          
+          # Fetch the latest tvOS device identifiers
+          curl -s "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/main/tvos-device-identifiers.json" > /tmp/tvos-devices.json
+          
+          echo "Fetched latest device identifiers"
+
+      - name: Check for new devices
+        id: check_new
+        run: |
+          # Extract device identifiers from current code
+          CURRENT_DEVICES=$(grep -oE '(iPhone|iPad|iPod|Watch|AppleTV|Mac|MacBook|Macmini|iMac|RealityDevice)[0-9]+,[0-9]+' "CPU Identifier Mac/CPUIdentifierAppDelegate.m" | sort -u)
+          
+          # Extract device identifiers from fetched JSON files
+          NEW_IOS_DEVICES=$(cat /tmp/ios-devices.json | grep -oE '"(iPhone|iPad|iPod)[0-9]+,[0-9]+"' | tr -d '"' | sort -u)
+          NEW_WATCH_DEVICES=$(cat /tmp/watchos-devices.json | grep -oE '"Watch[0-9]+,[0-9]+"' | tr -d '"' | sort -u)
+          NEW_TV_DEVICES=$(cat /tmp/tvos-devices.json | grep -oE '"AppleTV[0-9]+,[0-9]+"' | tr -d '"' | sort -u)
+          NEW_MAC_DEVICES=$(cat /tmp/mac-devices.json | grep -oE '"(Mac|MacBook|Macmini|iMac)[0-9A-Za-z]+,[0-9]+"' | tr -d '"' | sort -u)
+          
+          # Combine all new devices
+          ALL_NEW_DEVICES=$(echo -e "$NEW_IOS_DEVICES\n$NEW_WATCH_DEVICES\n$NEW_TV_DEVICES\n$NEW_MAC_DEVICES" | sort -u)
+          
+          # Find devices that are not in current code
+          MISSING_DEVICES=""
+          while IFS= read -r device; do
+            if [ -n "$device" ] && ! echo "$CURRENT_DEVICES" | grep -q "^${device}$"; then
+              MISSING_DEVICES="${MISSING_DEVICES}${device}\n"
+            fi
+          done <<< "$ALL_NEW_DEVICES"
+          
+          # Count missing devices
+          if [ -n "$MISSING_DEVICES" ]; then
+            MISSING_COUNT=$(echo -e "$MISSING_DEVICES" | grep -c .)
+            echo "Found $MISSING_COUNT new device(s) not in current code"
+            echo "MISSING_DEVICES<<EOF" >> $GITHUB_OUTPUT
+            echo -e "$MISSING_DEVICES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "HAS_UPDATES=true" >> $GITHUB_OUTPUT
+            echo "MISSING_COUNT=$MISSING_COUNT" >> $GITHUB_OUTPUT
+          else
+            echo "No new devices found"
+            echo "HAS_UPDATES=false" >> $GITHUB_OUTPUT
+            echo "MISSING_COUNT=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fetch device names for missing devices
+        id: fetch_names
+        if: steps.check_new.outputs.HAS_UPDATES == 'true'
+        run: |
+          MISSING="${{ steps.check_new.outputs.MISSING_DEVICES }}"
+          
+          # Create a report with device names
+          REPORT=""
+          while IFS= read -r device; do
+            if [ -n "$device" ]; then
+              # Try to find the device name in the JSON files
+              NAME=""
+              if echo "$device" | grep -qE "^(iPhone|iPad|iPod)"; then
+                NAME=$(cat /tmp/ios-devices.json | jq -r --arg d "$device" '.[$d] // empty')
+              elif echo "$device" | grep -qE "^Watch"; then
+                NAME=$(cat /tmp/watchos-devices.json | jq -r --arg d "$device" '.[$d] // empty')
+              elif echo "$device" | grep -qE "^AppleTV"; then
+                NAME=$(cat /tmp/tvos-devices.json | jq -r --arg d "$device" '.[$d] // empty')
+              elif echo "$device" | grep -qE "^(Mac|MacBook|Macmini|iMac)"; then
+                NAME=$(cat /tmp/mac-devices.json | jq -r --arg d "$device" '.[$d] // empty')
+                # Handle array values
+                if [ "$NAME" == "null" ] || [ -z "$NAME" ]; then
+                  NAME=$(cat /tmp/mac-devices.json | jq -r --arg d "$device" '.[$d][0] // empty')
+                fi
+              fi
+              
+              if [ -n "$NAME" ] && [ "$NAME" != "null" ]; then
+                REPORT="${REPORT}- \`${device}\` - ${NAME}\n"
+              else
+                REPORT="${REPORT}- \`${device}\` - (Unknown name)\n"
+              fi
+            fi
+          done <<< "$MISSING"
+          
+          echo "DEVICE_REPORT<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$REPORT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create or update issue
+        if: steps.check_new.outputs.HAS_UPDATES == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🔔 New Apple Devices Detected';
+            const missingCount = '${{ steps.check_new.outputs.MISSING_COUNT }}';
+            const deviceReport = `${{ steps.fetch_names.outputs.DEVICE_REPORT }}`;
+            
+            const body = `## New Device Identifiers Found
+            
+            The monthly device check has detected **${missingCount}** new Apple device identifier(s) that are not yet supported in CPU Identifier.
+            
+            ### New Devices
+            ${deviceReport}
+            
+            ### Action Required
+            Please update the device mappings in:
+            - \`CPU Identifier Mac/CPUIdentifierAppDelegate.m\`
+            - \`CPU Identifier iOS/ViewController.m\` (if applicable)
+            
+            ### References
+            - [iOS Device Identifiers](https://github.com/kyle-seongwoo-jun/apple-device-identifiers/blob/main/ios-device-identifiers.json)
+            - [Mac Device Identifiers](https://github.com/kyle-seongwoo-jun/apple-device-identifiers/blob/main/mac-device-identifiers.json)
+            - [watchOS Device Identifiers](https://github.com/kyle-seongwoo-jun/apple-device-identifiers/blob/main/watchos-device-identifiers.json)
+            - [tvOS Device Identifiers](https://github.com/kyle-seongwoo-jun/apple-device-identifiers/blob/main/tvos-device-identifiers.json)
+            
+            ---
+            *This issue was automatically created by the monthly device check workflow.*
+            *Last checked: ${new Date().toISOString().split('T')[0]}*`;
+            
+            // Check if there's already an open issue with this title
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'device-update'
+            });
+            
+            const existingIssue = issues.data.find(issue => issue.title === title);
+            
+            if (existingIssue) {
+              // Update existing issue
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: body
+              });
+              console.log(`Updated existing issue #${existingIssue.number}`);
+            } else {
+              // Create new issue
+              const newIssue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['device-update', 'enhancement']
+              });
+              console.log(`Created new issue #${newIssue.data.number}`);
+            }
+
+      - name: Summary
+        run: |
+          echo "## Device Update Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_new.outputs.HAS_UPDATES }}" == "true" ]; then
+            echo "✅ Found **${{ steps.check_new.outputs.MISSING_COUNT }}** new device(s)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### New Devices" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.fetch_names.outputs.DEVICE_REPORT }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No new devices found. All device identifiers are up to date!" >> $GITHUB_STEP_SUMMARY
+          fi
