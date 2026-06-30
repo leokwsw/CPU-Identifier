@@ -41,21 +41,13 @@ A macOS and iOS app that identifies Apple device models and CPU/chip information
 
 ## Installation
 
-### Prerequisites (Mac App)
-
-The Mac app requires `libimobiledevice` to communicate with iOS devices:
-
-```bash
-# Install via Homebrew
-brew install libimobiledevice
-```
-
 ### Mac App
 
-1. Install libimobiledevice (see above)
-2. Download the DMG from the [Releases](../../releases) page
-3. Open the DMG file
-4. Drag "CPU Identifier" to your Applications folder
+1. Download the DMG from the [Releases](../../releases) page
+2. Open the DMG file
+3. Drag "CPU Identifier" to your Applications folder
+
+**No additional dependencies required!** The app bundles all necessary libraries.
 
 ### System Requirements
 
@@ -85,11 +77,12 @@ CPU Identifier/
 | Feature | Version 1.x (Objective-C) | Version 2.0 (Swift) |
 |---------|---------------------------|---------------------|
 | Language | Objective-C | Swift |
-| iOS Device Communication | MobileDevice.framework (private) | libimobiledevice (open-source) |
+| iOS Device Communication | MobileDevice.framework (private) | AppleMobileDevice (bundled) |
 | Architecture | x86_64 only | Universal Binary |
 | Rosetta 2 Required | Yes | No |
 | macOS 28+ Compatible | No | Yes |
 | Device Data | Large if-else chains | Dictionary lookups |
+| External Dependencies | None (but limited) | None (fully featured) |
 
 ## Building from Source
 
@@ -97,7 +90,6 @@ CPU Identifier/
 
 1. Xcode 14.0 or later
 2. macOS 11.0 or later
-3. For Mac app: `brew install libimobiledevice`
 
 ### Build Steps
 
@@ -129,25 +121,12 @@ This repository includes a GitHub Actions workflow that automatically checks for
 
 If you're upgrading from version 1.x:
 
-1. **Install libimobiledevice**: `brew install libimobiledevice`
-2. **Download 2.0**: Get the new version from Releases
-3. **Replace the app**: The new version is a complete replacement
+1. **Download 2.0**: Get the new version from Releases
+2. **Replace the app**: Simply drag the new version to Applications
 
-Note: Your settings and preferences do not carry over as this is a complete rewrite.
+Note: Your settings and preferences do not carry over as this is a complete rewrite. No external dependencies are required - everything is bundled in the app.
 
 ## Troubleshooting
-
-### "libimobiledevice Not Found" Error
-
-Make sure libimobiledevice is installed and accessible:
-
-```bash
-# Install
-brew install libimobiledevice
-
-# Verify installation
-idevice_id --version
-```
 
 ### Device Not Detected
 

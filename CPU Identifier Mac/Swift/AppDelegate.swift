@@ -14,11 +14,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, DeviceManagerDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         deviceManager.delegate = self
         
-        // Check if libimobiledevice is installed
-        if !deviceManager.checkDependencies() {
-            showDependencyAlert()
-        }
-        
         // Start monitoring for devices
         deviceManager.startMonitoring()
         
@@ -56,12 +51,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, DeviceManagerDelegate {
     }
     
     func deviceError(message: String) {
-        let alert = NSAlert()
-        alert.messageText = "Device Error"
-        alert.informativeText = message
-        alert.alertStyle = .warning
-        alert.addButton(withTitle: "OK")
-        alert.runModal()
+        // Log error but don't show alert to avoid interrupting user
+        print("Device error: \(message)")
     }
     
     // MARK: - Private Methods
@@ -71,28 +62,5 @@ class AppDelegate: NSObject, NSApplicationDelegate, DeviceManagerDelegate {
         deviceTypeLabel.stringValue = ""
         deviceCPULabel.stringValue = ""
         deviceModelLabel.stringValue = ""
-    }
-    
-    private func showDependencyAlert() {
-        let alert = NSAlert()
-        alert.messageText = "libimobiledevice Not Found"
-        alert.informativeText = """
-        CPU Identifier requires libimobiledevice to communicate with iOS devices.
-        
-        Please install it using Homebrew:
-        brew install libimobiledevice
-        
-        After installation, restart the app.
-        """
-        alert.alertStyle = .warning
-        alert.addButton(withTitle: "OK")
-        alert.addButton(withTitle: "Open Homebrew Website")
-        
-        let response = alert.runModal()
-        if response == .alertSecondButtonReturn {
-            if let url = URL(string: "https://brew.sh") {
-                NSWorkspace.shared.open(url)
-            }
-        }
     }
 }

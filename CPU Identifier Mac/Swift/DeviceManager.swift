@@ -1,4 +1,5 @@
 import Foundation
+import AppleMobileDevice
 
 /// Protocol for device connection events
 protocol DeviceManagerDelegate: AnyObject {
@@ -29,13 +30,13 @@ struct DeviceInfo {
     }
 }
 
-/// Manages iOS device connections using libimobiledevice
+/// Manages iOS device connections using AppleMobileDevice (libimobiledevice wrapper)
 class DeviceManager {
     weak var delegate: DeviceManagerDelegate?
     
-    private var monitorProcess: Process?
     private var isMonitoring = false
     private let queue = DispatchQueue(label: "com.cpuidentifier.devicemanager")
+    private var lastConnectedUDID: String?
     
     init() {}
     
@@ -56,109 +57,84 @@ class DeviceManager {
     /// Stop monitoring for device connections
     func stopMonitoring() {
         isMonitoring = false
-        monitorProcess?.terminate()
-        monitorProcess = nil
+        lastConnectedUDID = nil
     }
     
-    /// Monitor for device connections using idevice_id
+    /// Monitor for device connections
     private func monitorDevices() {
         while isMonitoring {
-            if let udid = getConnectedDeviceUDID() {
-                if let info = getDeviceInfo(udid: udid) {
-                    DispatchQueue.main.async { [weak self] in
-                        self?.delegate?.deviceDidConnect(info: info)
-                    }
-                }
-            } else {
-                DispatchQueue.main.async { [weak self] in
-                    self?.delegate?.deviceDidDisconnect()
-                }
-            }
+            checkForDevices()
             Thread.sleep(forTimeInterval: 2.0)
         }
     }
     
-    /// Get the UDID of the first connected device
-    private func getConnectedDeviceUDID() -> String? {
-        let output = runCommand("idevice_id", arguments: ["-l"])
-        let udids = output.components(separatedBy: .newlines).filter { !$0.isEmpty }
-        return udids.first
+    /// Check for connected devices
+    private func checkForDevices() {
+        do {
+            let devices = try AMDevice.enumerate()
+            
+            if let device = devices.first {
+                let udid = device.udid
+                
+                // Only notify if it's a new device
+                if udid != lastConnectedUDID {
+                    lastConnectedUDID = udid
+                    
+                    if let info = getDeviceInfo(device: device) {
+                        DispatchQueue.main.async { [weak self] in
+                            self?.delegate?.deviceDidConnect(info: info)
+                        }
+                    }
+                }
+            } else {
+                // No devices connected
+                if lastConnectedUDID != nil {
+                    lastConnectedUDID = nil
+                    DispatchQueue.main.async { [weak self] in
+                        self?.delegate?.deviceDidDisconnect()
+                    }
+                }
+            }
+        } catch {
+            // Handle error silently during monitoring
+            if lastConnectedUDID != nil {
+                lastConnectedUDID = nil
+                DispatchQueue.main.async { [weak self] in
+                    self?.delegate?.deviceDidDisconnect()
+                }
+            }
+        }
     }
     
-    /// Get device information using ideviceinfo
-    private func getDeviceInfo(udid: String) -> DeviceInfo? {
-        let output = runCommand("ideviceinfo", arguments: ["-u", udid])
-        
-        guard !output.isEmpty else {
+    /// Get device information
+    private func getDeviceInfo(device: AMDevice) -> DeviceInfo? {
+        do {
+            try device.connect()
+            try device.startSession()
+            
+            let productType = try device.copyValue(key: "ProductType") as? String ?? "Unknown"
+            let hardwarePlatform = try device.copyValue(key: "HardwarePlatform") as? String ?? "Unknown"
+            let modelNumber = try device.copyValue(key: "ModelNumber") as? String ?? "Unknown"
+            let regionCode = try device.copyValue(key: "RegionCode") as? String ?? ""
+            let productVersion = try device.copyValue(key: "ProductVersion") as? String ?? ""
+            let deviceName = try device.copyValue(key: "DeviceName") as? String ?? "Unknown Device"
+            
+            try device.stopSession()
+            try device.disconnect()
+            
+            return DeviceInfo(
+                productType: productType,
+                hardwarePlatform: hardwarePlatform,
+                modelNumber: modelNumber,
+                regionCode: regionCode,
+                productVersion: productVersion,
+                deviceName: deviceName
+            )
+        } catch {
             DispatchQueue.main.async { [weak self] in
-                self?.delegate?.deviceError(message: "Failed to get device info. Make sure libimobiledevice is installed.")
+                self?.delegate?.deviceError(message: "Failed to read device info: \(error.localizedDescription)")
             }
             return nil
         }
-        
-        var info: [String: String] = [:]
-        for line in output.components(separatedBy: .newlines) {
-            let parts = line.components(separatedBy: ": ")
-            if parts.count >= 2 {
-                let key = parts[0].trimmingCharacters(in: .whitespaces)
-                let value = parts.dropFirst().joined(separator: ": ").trimmingCharacters(in: .whitespaces)
-                info[key] = value
-            }
-        }
-        
-        return DeviceInfo(
-            productType: info["ProductType"] ?? "Unknown",
-            hardwarePlatform: info["HardwarePlatform"] ?? "Unknown",
-            modelNumber: info["ModelNumber"] ?? "Unknown",
-            regionCode: info["RegionCode"] ?? "",
-            productVersion: info["ProductVersion"] ?? "",
-            deviceName: info["DeviceName"] ?? "Unknown Device"
-        )
-    }
-    
-    /// Run a shell command and return its output
-    private func runCommand(_ command: String, arguments: [String] = []) -> String {
-        let process = Process()
-        let pipe = Pipe()
-        
-        // Try common installation paths
-        let paths = [
-            "/opt/homebrew/bin/\(command)",  // Apple Silicon Homebrew
-            "/usr/local/bin/\(command)",      // Intel Homebrew
-            "/usr/bin/\(command)"             // System
-        ]
-        
-        var executablePath: String?
-        for path in paths {
-            if FileManager.default.fileExists(atPath: path) {
-                executablePath = path
-                break
-            }
-        }
-        
-        guard let path = executablePath else {
-            return ""
-        }
-        
-        process.executableURL = URL(fileURLWithPath: path)
-        process.arguments = arguments
-        process.standardOutput = pipe
-        process.standardError = pipe
-        
-        do {
-            try process.run()
-            process.waitUntilExit()
-            
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            return String(data: data, encoding: .utf8) ?? ""
-        } catch {
-            return ""
-        }
-    }
-    
-    /// Check if libimobiledevice is installed
-    func checkDependencies() -> Bool {
-        let output = runCommand("idevice_id", arguments: ["--version"])
-        return !output.isEmpty || runCommand("which", arguments: ["idevice_id"]).contains("idevice_id")
     }
 }

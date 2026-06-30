@@ -31,6 +31,12 @@ jobs:
       - name: List available schemes
         run: xcodebuild -list -project "CPU Identifier.xcodeproj"
 
+      - name: Resolve Swift Package Dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project "CPU Identifier.xcodeproj" \
+            -scheme "CPU Identifier Mac"
+
       - name: Build Mac App (Universal Binary)
         run: |
           # Build Universal Binary (ARM64 + x86_64) for macOS
@@ -100,7 +106,7 @@ jobs:
             ### What's New in 2.0
             - 🚀 **Rewritten in Swift** - Modern, maintainable codebase
             - 🍎 **Native Apple Silicon support** - Universal Binary (ARM64 + x86_64)
-            - 🔧 **libimobiledevice integration** - No more Rosetta 2 dependency
+            - 📦 **Zero dependencies** - All libraries bundled, no Homebrew needed
             - ✅ **macOS 28+ compatible** - Future-proof for when Rosetta 2 is discontinued
             - Support for the latest Apple devices
             - Updated CPU/chip identifiers
@@ -116,13 +122,13 @@ jobs:
             ### System Requirements
             - **macOS**: 11.0 (Big Sur) or later
             - **Architecture**: Universal Binary (ARM64 + x86_64)
-            - **Dependency**: libimobiledevice (install via `brew install libimobiledevice`)
             
             ### Installation
-            1. Install libimobiledevice: `brew install libimobiledevice`
-            2. Download the DMG file
-            3. Open the DMG
-            4. Drag "CPU Identifier" to your Applications folder
+            1. Download the DMG file
+            2. Open the DMG
+            3. Drag "CPU Identifier" to your Applications folder
+            
+            **No additional dependencies required!** All libraries are bundled.
           files: ${{ env.DMG_NAME }}
           draft: false
           prerelease: false
