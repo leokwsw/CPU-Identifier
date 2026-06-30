@@ -117,7 +117,21 @@ jobs:
             2. Open the DMG
             3. Drag "CPU Identifier" to your Applications folder
             
-            **Note:** This app requires macOS 10.13 or later. Built for Intel (x86_64) and runs on Apple Silicon via Rosetta 2.
+            ### System Requirements
+            - **macOS**: 10.13 (High Sierra) or later
+            - **Architecture**: Intel (x86_64) - runs on Apple Silicon via Rosetta 2
+            
+            ### ⚠️ Rosetta 2 Deprecation Warning
+            
+            This app is built for Intel (x86_64) due to `MobileDevice.framework` limitations.
+            
+            | macOS Version | Compatibility |
+            |---------------|---------------|
+            | macOS 26 (Tahoe) | ✅ Works via Rosetta 2 |
+            | macOS 27 (Golden Gate) | ✅ Works via Rosetta 2 (Last supported) |
+            | macOS 28+ (Late 2027) | ❌ Will NOT work |
+            
+            Apple is discontinuing Rosetta 2 support for general applications starting with macOS 28. Please check the repository for future updates.
           files: ${{ env.DMG_NAME }}
           draft: false
           prerelease: false
