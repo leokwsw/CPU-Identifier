@@ -100,10 +100,10 @@
         </window>
         <customObject id="494" customClass="AppDelegate">
             <connections>
-                <outlet property="deviceCPULabel" destination="WiM-SY-Yt1" id="eCb-R1-59a"/>
-                <outlet property="deviceModelLabel" destination="aXy-LR-5Ta" id="eSv-cg-jeb"/>
-                <outlet property="deviceTypeLabel" destination="m0h-nj-QcN" id="AlT-ZJ-Clw"/>
-                <outlet property="disconnectLabel" destination="559" id="W9p-Ew-CpM"/>
+                <outlet property="deviceCPU" destination="WiM-SY-Yt1" id="eCb-R1-59a"/>
+                <outlet property="deviceModel" destination="aXy-LR-5Ta" id="eSv-cg-jeb"/>
+                <outlet property="devicetype" destination="m0h-nj-QcN" id="AlT-ZJ-Clw"/>
+                <outlet property="disconnetLabel" destination="559" id="W9p-Ew-CpM"/>
                 <outlet property="window" destination="371" id="532"/>
             </connections>
         </customObject>

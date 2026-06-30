@@ -2,16 +2,18 @@
 
 A macOS and iOS app that identifies Apple device models and CPU/chip information.
 
-## Version 2.0.0 - Swift Rewrite
+## Current Status
 
-🚀 **Major Update**: CPU Identifier has been completely rewritten in Swift with native Apple Silicon support!
+The current release uses Objective-C with `MobileDevice.framework` and requires x86_64 (Intel or Apple Silicon with Rosetta 2).
 
-### What's New
+### Swift 2.0 Migration (In Progress)
 
-- **Swift Codebase** - Modern, type-safe, and maintainable code
-- **Universal Binary** - Native support for both ARM64 and x86_64
-- **libimobiledevice** - Open-source library replaces private MobileDevice.framework
-- **Future-Proof** - Compatible with macOS 28+ when Rosetta 2 is discontinued
+Swift source files have been prepared for a future native Apple Silicon release:
+- `Shared/DeviceDatabase.swift` - Shared device/chip identification data
+- `CPU Identifier Mac/Swift/` - Mac app Swift sources
+- `CPU Identifier iOS/Swift/` - iOS app Swift sources
+
+> ⚠️ **Note**: The Xcode project still builds the Objective-C sources. Full Swift migration requires updating the project configuration to use these new files and the AppleMobileDevice Swift package.
 
 ## Features
 
@@ -47,42 +49,52 @@ A macOS and iOS app that identifies Apple device models and CPU/chip information
 2. Open the DMG file
 3. Drag "CPU Identifier" to your Applications folder
 
-**No additional dependencies required!** The app bundles all necessary libraries.
-
 ### System Requirements
 
-- **macOS**: 11.0 (Big Sur) or later
-- **Architecture**: Universal Binary (ARM64 + x86_64)
+- **macOS**: 10.8 (Mountain Lion) or later
+- **Architecture**: x86_64 (Intel or Apple Silicon with Rosetta 2)
+
+> ⚠️ **Rosetta 2 Deprecation**: Apple plans to discontinue full Rosetta 2 support in macOS 28 (late 2027). A Swift version with native Apple Silicon support is in development.
 
 ## Architecture
 
-### Version 2.0 (Swift)
+### Current Version (Objective-C)
+
+```
+CPU Identifier/
+├── CPU Identifier Mac/
+│   ├── CPUIdentifierAppDelegate.m  # Mac app entry point
+│   ├── MobileDevice.framework      # Apple private framework (x86_64)
+│   └── MainMenu.xib                # UI definition
+└── CPU Identifier iOS/
+    ├── AppDelegate.m               # iOS app entry point
+    └── ViewController.m            # Main view controller
+```
+
+### Prepared Swift Files (Future)
 
 ```
 CPU Identifier/
 ├── Shared/
-│   └── DeviceDatabase.swift      # Shared device/chip identification data
-├── CPU Identifier Mac/
-│   └── Swift/
-│       ├── AppDelegate.swift     # Mac app entry point
-│       └── DeviceManager.swift   # libimobiledevice wrapper
-└── CPU Identifier iOS/
-    └── Swift/
-        ├── AppDelegate.swift     # iOS app entry point
-        └── ViewController.swift  # Main view controller
+│   └── DeviceDatabase.swift        # Shared device/chip data (dictionaries)
+├── CPU Identifier Mac/Swift/
+│   ├── AppDelegate.swift           # Mac app entry point
+│   └── DeviceManager.swift         # libimobiledevice wrapper
+└── CPU Identifier iOS/Swift/
+    ├── AppDelegate.swift           # iOS app entry point
+    └── ViewController.swift        # Main view controller
 ```
 
-### Key Changes from 1.x
+### Planned Migration to Swift 2.0
 
-| Feature | Version 1.x (Objective-C) | Version 2.0 (Swift) |
-|---------|---------------------------|---------------------|
+| Feature | Current (Objective-C) | Future Swift 2.0 |
+|---------|----------------------|------------------|
 | Language | Objective-C | Swift |
-| iOS Device Communication | MobileDevice.framework (private) | AppleMobileDevice (bundled) |
-| Architecture | x86_64 only | Universal Binary |
+| iOS Device Communication | MobileDevice.framework (x86_64 only) | AppleMobileDevice (Universal) |
+| Architecture | x86_64 only | ARM64 + x86_64 |
 | Rosetta 2 Required | Yes | No |
 | macOS 28+ Compatible | No | Yes |
 | Device Data | Large if-else chains | Dictionary lookups |
-| External Dependencies | None (but limited) | None (fully featured) |
 
 ## Building from Source
 
@@ -103,28 +115,23 @@ CPU Identifier/
 ### Build Commands
 
 ```bash
-# Build Universal Binary for Mac
+# Build for Mac (x86_64)
 xcodebuild \
   -project "CPU Identifier.xcodeproj" \
   -scheme "CPU Identifier Mac" \
   -configuration Release \
-  ARCHS="arm64 x86_64" \
-  ONLY_ACTIVE_ARCH=NO \
-  MACOSX_DEPLOYMENT_TARGET=11.0
+  -arch x86_64 \
+  ARCHS=x86_64 \
+  VALID_ARCHS=x86_64
 ```
 
 ## Automated Device Updates
 
 This repository includes a GitHub Actions workflow that automatically checks for new Apple device identifiers monthly. When new devices are detected, an issue is created to track the needed updates.
 
-## Migration from 1.x
+## Updates
 
-If you're upgrading from version 1.x:
-
-1. **Download 2.0**: Get the new version from Releases
-2. **Replace the app**: Simply drag the new version to Applications
-
-Note: Your settings and preferences do not carry over as this is a complete rewrite. No external dependencies are required - everything is bundled in the app.
+New releases are available on the [Releases](../../releases) page. Simply download the latest DMG and replace the existing application.
 
 ## Troubleshooting
 
@@ -144,7 +151,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Adding New Devices
 
-To add support for new devices, update the dictionaries in `Shared/DeviceDatabase.swift`:
+For the current Objective-C version, update the if-else chains in:
+- `CPU Identifier Mac/CPUIdentifierAppDelegate.m`
+- `CPU Identifier iOS/ViewController.m`
+
+For the prepared Swift version, update the dictionaries in `Shared/DeviceDatabase.swift`:
 
 ```swift
 // Add new chip
