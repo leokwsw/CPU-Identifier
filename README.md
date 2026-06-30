@@ -2,6 +2,19 @@
 
 A macOS and iOS app that identifies Apple device models and CPU/chip information.
 
+## Current Status
+
+The current release uses Objective-C with `MobileDevice.framework` and requires x86_64 (Intel or Apple Silicon with Rosetta 2).
+
+### Swift 2.0 Migration (In Progress)
+
+Swift source files have been prepared for a future native Apple Silicon release:
+- `Shared/DeviceDatabase.swift` - Shared device/chip identification data
+- `CPU Identifier Mac/Swift/` - Mac app Swift sources
+- `CPU Identifier iOS/Swift/` - iOS app Swift sources
+
+> ⚠️ **Note**: The Xcode project still builds the Objective-C sources. Full Swift migration requires updating the project configuration to use these new files and the AppleMobileDevice Swift package.
+
 ## Features
 
 - **Mac App**: Identifies connected iOS devices via USB and displays detailed hardware information
@@ -36,39 +49,61 @@ A macOS and iOS app that identifies Apple device models and CPU/chip information
 2. Open the DMG file
 3. Drag "CPU Identifier" to your Applications folder
 
-### Requirements
+### System Requirements
 
-- **macOS**: 10.13 (High Sierra) or later
-- **Architecture**: Intel (x86_64) - runs on Apple Silicon via Rosetta 2
+- **macOS**: 10.8 (Mountain Lion) or later
+- **Architecture**: x86_64 (Intel or Apple Silicon with Rosetta 2)
 
-## ⚠️ Important: Rosetta 2 Deprecation Notice
+> ⚠️ **Rosetta 2 Deprecation**: Apple plans to discontinue full Rosetta 2 support in macOS 28 (late 2027). A Swift version with native Apple Silicon support is in development.
 
-> **This app is built for Intel (x86_64) architecture due to the `MobileDevice.framework` dependency, which does not support ARM64.**
+## Architecture
 
-### Timeline
+### Current Version (Objective-C)
 
-| macOS Version | Expected Release | Rosetta 2 Status |
-|---------------|------------------|------------------|
-| macOS 26 (Tahoe) | Available Now | ✅ Full support |
-| macOS 27 (Golden Gate) | Autumn 2026 | ✅ Full support (LAST version) |
-| macOS 28 | Late 2027 | ❌ Limited to legacy games only |
+```
+CPU Identifier/
+├── CPU Identifier Mac/
+│   ├── CPUIdentifierAppDelegate.m  # Mac app entry point
+│   ├── MobileDevice.framework      # Apple private framework (x86_64)
+│   └── MainMenu.xib                # UI definition
+└── CPU Identifier iOS/
+    ├── AppDelegate.m               # iOS app entry point
+    └── ViewController.m            # Main view controller
+```
 
-### What This Means
+### Prepared Swift Files (Future)
 
-- **macOS 26 & 27**: CPU Identifier will work normally via Rosetta 2
-- **macOS 28 and later**: CPU Identifier **will NOT work** unless rebuilt with native ARM64 support
+```
+CPU Identifier/
+├── Shared/
+│   └── DeviceDatabase.swift        # Shared device/chip data (dictionaries)
+├── CPU Identifier Mac/Swift/
+│   ├── AppDelegate.swift           # Mac app entry point
+│   └── DeviceManager.swift         # libimobiledevice wrapper
+└── CPU Identifier iOS/Swift/
+    ├── AppDelegate.swift           # iOS app entry point
+    └── ViewController.swift        # Main view controller
+```
 
-### Future Plans
+### Planned Migration to Swift 2.0
 
-The `MobileDevice.framework` is a private Apple framework that only supports x86_64 architecture. To continue supporting future macOS versions, the app would need to:
-
-1. Find an alternative API for iOS device communication that supports ARM64
-2. Remove the iOS device detection feature and focus only on local Mac identification
-3. Use command-line tools or other approaches
-
-Contributions and suggestions are welcome!
+| Feature | Current (Objective-C) | Future Swift 2.0 |
+|---------|----------------------|------------------|
+| Language | Objective-C | Swift |
+| iOS Device Communication | MobileDevice.framework (x86_64 only) | AppleMobileDevice (Universal) |
+| Architecture | x86_64 only | ARM64 + x86_64 |
+| Rosetta 2 Required | Yes | No |
+| macOS 28+ Compatible | No | Yes |
+| Device Data | Large if-else chains | Dictionary lookups |
 
 ## Building from Source
+
+### Prerequisites
+
+1. Xcode 14.0 or later
+2. macOS 11.0 or later
+
+### Build Steps
 
 1. Clone the repository
 2. Open `CPU Identifier.xcodeproj` in Xcode
@@ -77,11 +112,10 @@ Contributions and suggestions are welcome!
    - `CPU Identifier iOS` for the iOS app
 4. Build and run
 
-### Build Notes
-
-The Mac app must be built for x86_64 architecture:
+### Build Commands
 
 ```bash
+# Build for Mac (x86_64)
 xcodebuild \
   -project "CPU Identifier.xcodeproj" \
   -scheme "CPU Identifier Mac" \
@@ -95,6 +129,18 @@ xcodebuild \
 
 This repository includes a GitHub Actions workflow that automatically checks for new Apple device identifiers monthly. When new devices are detected, an issue is created to track the needed updates.
 
+## Updates
+
+New releases are available on the [Releases](../../releases) page. Simply download the latest DMG and replace the existing application.
+
+## Troubleshooting
+
+### Device Not Detected
+
+1. Ensure the device is unlocked
+2. Trust the computer on your iOS device when prompted
+3. Try unplugging and reconnecting the device
+
 ## License
 
 See [LICENSE](LICENSE) file for details.
@@ -102,3 +148,31 @@ See [LICENSE](LICENSE) file for details.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Adding New Devices
+
+For the current Objective-C version, update the if-else chains in:
+- `CPU Identifier Mac/CPUIdentifierAppDelegate.m`
+- `CPU Identifier iOS/ViewController.m`
+
+For the prepared Swift version, update the dictionaries in `Shared/DeviceDatabase.swift`:
+
+```swift
+// Add new chip
+public let chipIdentifiers: [String: String] = [
+    // ... existing entries ...
+    "t8160": "A20 Pro",  // Example new chip
+]
+
+// Add new device
+public let deviceIdentifiers: [String: String] = [
+    // ... existing entries ...
+    "iPhone19,1": "iPhone 18 Pro",  // Example new device
+]
+```
+
+## Acknowledgments
+
+- [libimobiledevice](https://libimobiledevice.org/) - Cross-platform library for iOS device communication
+- [The iPhone Wiki](https://www.theiphonewiki.com/) - Device identifier reference
+- [kyle-seongwoo-jun/apple-device-identifiers](https://github.com/kyle-seongwoo-jun/apple-device-identifiers) - Device identifier database
